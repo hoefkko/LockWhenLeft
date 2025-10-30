@@ -38,6 +38,11 @@ Using your webcam, the application uses AI-powered person detection to see if yo
 
 ### To do
 Clean-up code
+
 Refactor
+
 Add unit tests
+
 ...
+
+* [<ins>LockWhenLeft-v1.0.0.zip</ins>](https://github.com/hoefkko/LockWhenLeft/archive/refs/tags/v1.0-beta.1.zip)
