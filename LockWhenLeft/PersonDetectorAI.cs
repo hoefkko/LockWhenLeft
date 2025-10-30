@@ -154,7 +154,8 @@ public class PersonDetectorAI : IPersonDetector
     {
         try
         {
-            var modelPath = "yolo.onnx";
+            var path = new FileInfo(Environment.ProcessPath).DirectoryName;
+            var modelPath = Path.Combine(path, "yolo.onnx");
 
             if (File.Exists(modelPath))
             {

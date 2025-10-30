@@ -2,108 +2,82 @@
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using Microsoft.Win32.TaskScheduler;
 
-namespace LockWhenLeft
+namespace LockWhenLeft;
+
+// Create a shortcut file in the current users start up folder
+// Based on this answer on Stackoverflow:
+// http://stackoverflow.com/a/19914018/198065
+public class AutoStart(string applicationName)
 {
-    // Create a shortcut file in the current users start up folder
-    // Based on this answer on Stackoverflow:
-    // http://stackoverflow.com/a/19914018/198065
-    public class AutoStart
+    string taskName = $"Start {applicationName}";
+
+    public bool IsEnabled
     {
-        public bool IsEnabled
+        get
         {
-            get { return HasShortcut(); }
-
-            set
-            {
-                var appLink = GetAppLinkPath();
-
-                if (value)
-                {
-                    CreateShortcut(appLink);
-                }
-                else if (IsEnabled)
-                {
-                    DeleteShortcut(appLink);
-                }
-            }
+            using (TaskService ts = new TaskService())
+                return ts.GetTask(taskName) != null;
         }
-
-        private static bool HasShortcut()
+        set
         {
-            try
+            if (value)
             {
-                return File.Exists(GetAppLinkPath());
+                ScheduleAppOnLogon();
             }
-            catch
+            else if (IsEnabled)
             {
-                return false;
-            }
-        }
-
-        private static string GetAppLinkPath()
-        {
-            var appDataStart =
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                    @"Microsoft\Windows\Start Menu\Programs\Startup");
-            var appLink = Path.Combine(appDataStart, "LockWhenLeft.lnk");
-            return appLink;
-        }
-
-        private static void DeleteShortcut(string appLink)
-        {
-            try
-            {
-                File.Delete(appLink);
-            }
-            catch
-            {
-                throw new AutoStartException(
-                    "It was not possible to delete the shortcut to LockWhenLeft in the startup folder");
-            }
-        }
-
-        private static void CreateShortcut(string appLink)
-        {
-            try
-            {
-                var exeLocation = Environment.ProcessPath;
-
-                //Windows Script Host Shell Object
-                var t = Type.GetTypeFromCLSID(new Guid("72C24DD5-D70A-438B-8A42-98424B88AFB8"));
-                dynamic shell = Activator.CreateInstance(t);
-                try
-                {
-                    var lnk = shell.CreateShortcut(appLink);
-                    try
-                    {
-                        lnk.TargetPath = exeLocation;
-                        lnk.WorkingDirectory = new FileInfo(exeLocation).DirectoryName;
-                        lnk.Save();
-                    }
-                    finally
-                    {
-                        Marshal.FinalReleaseComObject(lnk);
-                    }
-                }
-                finally
-                {
-                    Marshal.FinalReleaseComObject(shell);
-                }
-            }
-            catch
-            {
-                throw new AutoStartException(
-                    "It was not possible to create a shortcut to LockWhenLeft in the startup folder");
+                using (TaskService ts = new TaskService())
+                    ts.RootFolder.DeleteTask(taskName);
             }
         }
     }
 
-    public class AutoStartException : Exception
+    public void ScheduleAppOnLogon()
     {
-        public AutoStartException(string message)
-            : base(message)
+        try
         {
+            using (TaskService ts = new TaskService())
+            {
+                // **Check if the task already exists**
+                if (ts.GetTask(taskName) != null)
+                {
+                    Console.WriteLine($"Task '{taskName}' already exists. Skipping creation.");
+                    return;
+                }
+
+                // --- Task does not exist, so we create it ---
+
+                Console.WriteLine($"Task '{taskName}' not found. Creating...");
+
+                // Get the path to your application's executable
+                string appPath = Environment.ProcessPath;
+
+                // Create a new task definition
+                TaskDefinition td = ts.NewTask();
+                td.RegistrationInfo.Description = taskName;
+                td.Principal.RunLevel = TaskRunLevel.Highest;
+                td.Settings.DisallowStartIfOnBatteries = false;
+                td.Settings.StopIfGoingOnBatteries = false;
+                // Create the "On Logon" trigger
+                LogonTrigger logonTrigger = new LogonTrigger();
+                logonTrigger.Delay = TimeSpan.FromSeconds(0);
+                td.Triggers.Add(logonTrigger);
+
+                // Create the action to start your application
+                td.Actions.Add(new ExecAction(appPath));
+
+                // Register the task
+                ts.RootFolder.RegisterTaskDefinition(taskName, td);
+
+                Console.WriteLine($"Task '{taskName}' scheduled successfully!");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error scheduling task: {ex.Message}");
         }
     }
+
 }

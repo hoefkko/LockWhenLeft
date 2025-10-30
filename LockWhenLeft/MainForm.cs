@@ -80,7 +80,7 @@ public partial class MainForm : Form
         SetupDelaySettings();
 
         chkForceCamera.CheckedChanged += ChkForceCamera_CheckedChanged;
-        _autoStart = new AutoStart();
+        _autoStart = new AutoStart("LockWhenLeft");
 
         LoadStartupCheckState();
         chkStartup.CheckedChanged += chkStartup_CheckedChanged;
@@ -348,32 +348,6 @@ public partial class MainForm : Form
     private void chkStartup_CheckedChanged(object sender, EventArgs e)
     {
         _autoStart.IsEnabled = !_autoStart.IsEnabled;
-
-        // try
-        // {
-        //     using (var regKey = Registry.CurrentUser.OpenSubKey(StartupRegistryKey, true))
-        //     {
-        //         if (regKey == null) throw new Exception("Could not open registry key.");
-        //
-        //         if (chkStartup.Checked)
-        //         {
-        //             var executablePath = Application.ExecutablePath;
-        //             regKey.SetValue(StartupRegistryValueName, executablePath);
-        //         }
-        //         else
-        //         {
-        //             regKey.DeleteValue(StartupRegistryValueName, false);
-        //         }
-        //     }
-        // }
-        // catch (Exception ex)
-        // {
-        //     Debug.WriteLine($"Error updating startup registry: {ex.Message}");
-        //     MessageBox.Show(
-        //         $"Failed to update startup setting.\nError: {ex.Message}",
-        //         "Startup Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        //     chkStartup.Checked = !chkStartup.Checked;
-        // }
     }
 
     // *** UPDATED Event Handlers ***
@@ -409,10 +383,11 @@ public partial class MainForm : Form
     {
         try
         {
-            _greenIcon = new Icon("green.ico");
-            _orangeIcon = new Icon("orange.ico");
-            _redIcon = new Icon("red.ico");
-            _whiteIcon = new Icon("white.ico");
+            var path = new FileInfo(Environment.ProcessPath).DirectoryName;
+            _greenIcon = new Icon(Path.Combine(path, "green.ico"));
+            _orangeIcon = new Icon(Path.Combine(path, "orange.ico"));
+            _redIcon = new Icon(Path.Combine(path, "red.ico"));
+            _whiteIcon = new Icon(Path.Combine(path, "white.ico"));
         }
         catch (FileNotFoundException ex)
         {
@@ -516,26 +491,6 @@ public partial class MainForm : Form
     private void LoadStartupCheckState()
     {
         chkStartup.Checked = _autoStart.IsEnabled;
-        // try
-        // {
-        //     using (var regKey = Registry.CurrentUser.OpenSubKey(StartupRegistryKey, false))
-        //     {
-        //         if (regKey == null)
-        //         {
-        //             chkStartup.Checked = false;
-        //             return;
-        //         }
-        //         var storedValue = regKey.GetValue(StartupRegistryValueName)?.ToString();
-        //         var executablePath = Application.ExecutablePath;
-        //         chkStartup.Checked = !string.IsNullOrEmpty(storedValue) &&
-        //                              storedValue.Equals(executablePath, StringComparison.OrdinalIgnoreCase);
-        //     }
-        // }
-        // catch (Exception ex)
-        // {
-        //     Debug.WriteLine($"Error reading startup registry key: {ex.Message}");
-        //     chkStartup.Checked = false;
-        // }
     }
 
     private void RegisterEventLogSource()

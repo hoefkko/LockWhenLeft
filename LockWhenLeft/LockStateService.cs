@@ -301,7 +301,7 @@ public class LockStateService : ILockStateService
     {
         _keyboardHookProc = KeyboardHookCallback;
         _mouseHookProc = MouseHookCallback;
-        // StartHook();
+        StartHook();
 
         // _globalHook = Hook.GlobalEvents();
         // _globalHook.MouseMove += OnGlobalInput;
