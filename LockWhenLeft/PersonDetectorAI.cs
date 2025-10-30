@@ -88,26 +88,27 @@ public class PersonDetectorAI : IPersonDetector
                         _capture?.Dispose();
                         _capture = null;
                     }
-                    Thread.Sleep(500);
+                    Thread.Sleep(250);
                     continue;
                 }
 
                 if (_capture == null || !_capture.IsOpened)
                 {
-                    Debug.WriteLine("Camera not available (in use?). Retrying...");
+                    Debug.WriteLine($"{DateTime.Now} Camera not available (in use?). Retrying...");
                     OnErrorOccurred?.Invoke("Camera not available (in use?). Retrying...");
                     TryReinitializeCamera();
-                    Thread.Sleep(250);
+                    if (_capture == null || !_capture.IsOpened)
+                        Thread.Sleep(100);
                     continue;
                 }
 
                 using (var frame = new Mat())
                 {
-                    Debug.WriteLine("Reading frame");
+                    Debug.WriteLine($"{DateTime.Now} Reading frame");
                     _capture.Read(frame);
                     if (frame == null || frame.IsEmpty)
                     {
-                        Debug.WriteLine("Frame null or empty");
+                        Debug.WriteLine($"{DateTime.Now} Frame null or empty");
                         OnErrorOccurred?.Invoke("Empty frame received, retrying...");
                         Thread.Sleep(100);
                         continue;
@@ -136,13 +137,13 @@ public class PersonDetectorAI : IPersonDetector
                     }
                 }
 
-                Thread.Sleep(1000);
+                Thread.Sleep(500);
             }
             catch (Exception loopEx)
             {
                 OnErrorOccurred?.Invoke($"Main loop exception: {loopEx.Message}");
                 TryReinitializeCamera();
-                Thread.Sleep(1000);
+                Thread.Sleep(500);
             }
     }
 
@@ -173,6 +174,7 @@ public class PersonDetectorAI : IPersonDetector
     {
         try
         {
+            Debug.WriteLine($"{DateTime.Now} Camera not available TryReinitializeCamera");
             PersonDetected?.Invoke();
             _capture?.Dispose();
             _capture = new VideoCapture();
@@ -195,7 +197,7 @@ public class PersonDetectorAI : IPersonDetector
 
     private List<Detection> DetectPersons(Mat frame)
     {
-        Debug.WriteLine("Detecting persons");
+        Debug.WriteLine($"{DateTime.Now} Detecting persons");
 
         isPersonDetected = false;
         var allPersonDetections = new List<Detection>();

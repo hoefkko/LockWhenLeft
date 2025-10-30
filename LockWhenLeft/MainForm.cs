@@ -251,7 +251,7 @@ public partial class MainForm : Form
         keybd_event(VK_CONTROL, 0, 0, 0);
         Thread.Sleep(50);
         keybd_event(VK_CONTROL, 0, KEYEVENTF_KEYUP, 0);
-        Debug.WriteLine("WakeScreen: Sent CTRL key press.");
+        Debug.WriteLine($"{DateTime.Now} WakeScreen: Sent CTRL key press.");
     }
 
     #endregion
@@ -500,7 +500,7 @@ public partial class MainForm : Form
             if (!EventLog.SourceExists(EventLogSource))
             {
                 EventLog.CreateEventSource(EventLogSource, EventLogName);
-                Debug.WriteLine("Event Log Source registered successfully.");
+                Debug.WriteLine($"{DateTime.Now} Event Log Source registered successfully.");
             }
         }
         catch (Exception ex)

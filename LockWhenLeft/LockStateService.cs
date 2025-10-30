@@ -116,7 +116,7 @@ public class LockStateService : ILockStateService
             {
                 _lastMotion = DateTime.Now;
                 _detector.Paused = false;
-                Debug.WriteLine("Input inactivity timer expired. Resuming detection.");
+                Debug.WriteLine($"{DateTime.Now} Input inactivity timer expired. Resuming detection.");
                 UpdateIconState();
             }
             _enableDetectorTimer.Stop();
@@ -172,7 +172,7 @@ public class LockStateService : ILockStateService
         _popupVisible = false;
         _lastMotion = DateTime.Now;
         UpdateIconState();
-        Debug.WriteLine("Lock cancelled by user.");
+        Debug.WriteLine($"{DateTime.Now} Lock cancelled by user.");
     }
 
     public void SetNoInputActiveDelay(int seconds) // RENAMED
@@ -202,7 +202,7 @@ public class LockStateService : ILockStateService
         {
             _popupVisible = false;
             CancelLockPopup?.Invoke();
-            Debug.WriteLine("Lock cancelled due to motion.");
+            Debug.WriteLine($"{DateTime.Now} Lock cancelled due to motion.");
         }
 
         UpdateIconState();
@@ -240,7 +240,7 @@ public class LockStateService : ILockStateService
         {
             _popupVisible = false;
             CancelLockPopup?.Invoke();
-            Debug.WriteLine("Lock cancelled due to input.");
+            Debug.WriteLine($"{DateTime.Now} Lock cancelled due to input.");
         }
 
         UpdateIconState();
@@ -258,7 +258,7 @@ public class LockStateService : ILockStateService
             {
                 _popupVisible = false;
                 CancelLockPopup?.Invoke();
-                Debug.WriteLine("Lock cancelled due to state change (motion/pause/lock).");
+                Debug.WriteLine($"{DateTime.Now} Lock cancelled due to state change (motion/pause/lock).");
                 return;
             }
 
