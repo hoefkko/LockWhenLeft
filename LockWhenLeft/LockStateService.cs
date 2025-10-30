@@ -170,7 +170,6 @@ public class LockStateService : ILockStateService
     public void CancelLockFromUserInput()
     {
         _popupVisible = false;
-        _inactivityTimer.Interval = 1000;
         _lastMotion = DateTime.Now;
         UpdateIconState();
         Debug.WriteLine("Lock cancelled by user.");
@@ -202,7 +201,6 @@ public class LockStateService : ILockStateService
         if (_popupVisible)
         {
             _popupVisible = false;
-            _inactivityTimer.Interval = 1000;
             CancelLockPopup?.Invoke();
             Debug.WriteLine("Lock cancelled due to motion.");
         }
@@ -241,7 +239,6 @@ public class LockStateService : ILockStateService
         if (_popupVisible)
         {
             _popupVisible = false;
-            _inactivityTimer.Interval = 1000;
             CancelLockPopup?.Invoke();
             Debug.WriteLine("Lock cancelled due to input.");
         }
@@ -260,7 +257,6 @@ public class LockStateService : ILockStateService
             if (_detector.Paused || _isSessionLocked || _motionDetected)
             {
                 _popupVisible = false;
-                _inactivityTimer.Interval = 1000;
                 CancelLockPopup?.Invoke();
                 Debug.WriteLine("Lock cancelled due to state change (motion/pause/lock).");
                 return;
@@ -270,7 +266,6 @@ public class LockStateService : ILockStateService
             if (elapsed >= _popupTimeout)
             {
                 _popupVisible = false;
-                _inactivityTimer.Interval = 1000;
                 CancelLockPopup?.Invoke();
 
                 if (!_isSessionLocked && !_detector.Paused && !_motionDetected)
@@ -291,7 +286,6 @@ public class LockStateService : ILockStateService
             {
                 _popupVisible = true;
                 _popupStartTime = DateTime.Now;
-                _inactivityTimer.Interval = 200;
                 ShowLockPopup?.Invoke(_popupTimeout);
                 Debug.WriteLine($"Inactivity detected ({secondsSinceLastMotion}s). Showing lock popup.");
             }
@@ -307,7 +301,7 @@ public class LockStateService : ILockStateService
     {
         _keyboardHookProc = KeyboardHookCallback;
         _mouseHookProc = MouseHookCallback;
-        StartHook();
+        // StartHook();
 
         // _globalHook = Hook.GlobalEvents();
         // _globalHook.MouseMove += OnGlobalInput;
@@ -327,7 +321,6 @@ public class LockStateService : ILockStateService
         if (isForcedPause && _popupVisible)
         {
             _popupVisible = false;
-            _inactivityTimer.Interval = 1000;
             CancelLockPopup?.Invoke();
         }
 
@@ -394,21 +387,21 @@ public class LockStateService : ILockStateService
 
     private IntPtr KeyboardHookCallback(int nCode, IntPtr wParam, IntPtr lParam)
     {
-        var sw = Stopwatch.StartNew();
+        // var sw = Stopwatch.StartNew();
         if (nCode >= 0 && wParam == (IntPtr)WM_KEYDOWN)
         {
             HandleGlobalInput();
             // int vkCode = Marshal.ReadInt32(lParam);
             // Debug.WriteLine($"keyboard {vkCode}");
         }
-        sw.Stop();
-        Debug.WriteLine($"Keyboard hook took {sw.ElapsedMilliseconds}");
+        // sw.Stop();
+        // Debug.WriteLine($"Keyboard hook took {sw.ElapsedMilliseconds}");
         return CallNextHookEx(_keyboardHookId, nCode, wParam, lParam);
     }
 
     private IntPtr MouseHookCallback(int nCode, IntPtr wParam, IntPtr lParam)
     {
-        var sw = Stopwatch.StartNew();
+        // var sw = Stopwatch.StartNew();
         if (nCode >= 0 && (wParam == (IntPtr) WM_LBUTTONDOWN || wParam == (IntPtr) WM_RBUTTONDOWN ||
                            wParam == (IntPtr) WM_LBUTTONUP || wParam == (IntPtr) WM_MOUSEMOVE ||
                            wParam == (IntPtr) WM_RBUTTONUP || wParam == (IntPtr) WM_MBUTTONDOWN ||
@@ -416,12 +409,12 @@ public class LockStateService : ILockStateService
                            wParam == (IntPtr) WM_XBUTTONUP || wParam == (IntPtr) WM_MOUSEWHEEL))
         {
             HandleGlobalInput();
-            Debug.WriteLine($"Mouse hook HandleGlobalInput took {sw.ElapsedMilliseconds}");
+            // Debug.WriteLine($"Mouse hook HandleGlobalInput took {sw.ElapsedMilliseconds}");
             // int vkCode = Marshal.ReadInt32(lParam);
             // Debug.WriteLine($"mouse {vkCode}");
         }
-        sw.Stop();
-        Debug.WriteLine($"Mouse hook took {sw.ElapsedMilliseconds}");
+        // sw.Stop();
+        // Debug.WriteLine($"Mouse hook took {sw.ElapsedMilliseconds}");
         return CallNextHookEx(_mouseHookId, nCode, wParam, lParam);
     }
 
