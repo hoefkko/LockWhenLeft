@@ -113,7 +113,28 @@ public class PersonDetectorAI : IPersonDetector
                         Thread.Sleep(100);
                         continue;
                     }
+                    // BRIGHTNESS CHECK, PREVENT FALSE POSITIVES
+                    using (var grayFrame = new Mat())
+                    {
+                        CvInvoke.CvtColor(frame, grayFrame, ColorConversion.Bgr2Gray);
+                        // Get the average brightness of the frame (0-255)
+                        var meanBrightness = CvInvoke.Mean(grayFrame).V0;
 
+                        // If average brightness is less than ~30, it's too dark
+                        if (meanBrightness < 30)
+                        {
+                            // If we previously saw a person, send "no person"
+                            if (isPersonDetected)
+                            {
+                                isPersonDetected = false;
+                                NoPersonDetected?.Invoke();
+                            }
+                            // Still provide the (dark) frame to the UI
+                            NewFrameAvailable?.Invoke(frame.ToBitmap());
+                            Thread.Sleep(100); // Wait a bit before next frame
+                            continue; // Skip detection
+                        }
+                    }
                     try
                     {
                         var detections = DetectPersons(frame);

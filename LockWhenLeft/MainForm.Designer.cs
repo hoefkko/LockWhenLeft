@@ -73,8 +73,8 @@ namespace LockWhenLeft
             //
             confidenceTresholdTrackBar.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right));
             confidenceTresholdTrackBar.Location = new System.Drawing.Point(276, 504);
-            confidenceTresholdTrackBar.Maximum = 20;
-            confidenceTresholdTrackBar.Minimum = 1;
+            confidenceTresholdTrackBar.Maximum = 100;
+            confidenceTresholdTrackBar.Minimum = 10;
             confidenceTresholdTrackBar.Name = "confidenceTresholdTrackBar";
             confidenceTresholdTrackBar.Size = new System.Drawing.Size(478, 69);
             confidenceTresholdTrackBar.TabIndex = 1;
