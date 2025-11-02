@@ -323,8 +323,14 @@ public partial class MainForm : Form
     {
         var newValue = confidenceTresholdTrackBar.Value;
         _detector.ConfidenceTreshold = newValue;
+        UpdateConficenceTreshold();
         Settings.Default.ConfidenceTreshold = newValue;
         Settings.Default.Save();
+    }
+
+    private void UpdateConficenceTreshold()
+    {
+        confidenceLabel.Text = $"Confidence treshold {_detector.ConfidenceTreshold}%";
     }
 
     private void SensitivityTresholdTrackBarValueChanged(object sender, EventArgs e)
@@ -456,6 +462,7 @@ public partial class MainForm : Form
 
         confidenceTresholdTrackBar.ValueChanged += ConfidenceTresholdTrackBarValueChanged;
         sensitivityTrackBar.ValueChanged += SensitivityTresholdTrackBarValueChanged;
+        UpdateConficenceTreshold();
     }
 
     // *** UPDATED Setup Method ***
