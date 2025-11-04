@@ -26,7 +26,8 @@ internal static class Program
             .ConfigureServices((context, services) =>
             {
                 services.AddSingleton<MainForm>();
-                services.AddSingleton<IPersonDetector, PersonDetectorAI>();
+                // services.AddSingleton<IPersonDetector, PersonDetectorAI>();
+                services.AddSingleton<IPersonDetector, PersonDetectorRfDetr>();
 
                 // *** REGISTER THE INTERFACE ***
                 services.AddSingleton<ILockStateService, LockStateService>();
