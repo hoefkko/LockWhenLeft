@@ -97,7 +97,7 @@ public class LockStateService : ILockStateService
 
         _detector.PersonDetected += OnMotionDetected;
         _detector.NoPersonDetected += OnNoMotionDetected;
-        _detector.NoPersonButChairDetected += OnNoMotionDetected;
+        _detector.NoPersonButChairDetected += OnNoMotionDetectedButChairDetected;
         _detector.OnErrorOccurred += errMsg => Debug.WriteLine($"Detector Error: {errMsg}");
 
         _detectorThread = new Thread(_detector.Start) { IsBackground = true };
@@ -220,6 +220,12 @@ public class LockStateService : ILockStateService
         _motionDetected = false;
     }
 
+    private void OnNoMotionDetectedButChairDetected()
+    {
+        _motionDetected = false;
+        ShowLockPopupInternal();
+    }
+
     private void OnGlobalInput(object sender, EventArgs e)
     {
         HandleGlobalInput();
@@ -284,14 +290,22 @@ public class LockStateService : ILockStateService
 
             if (secondsSinceLastMotion >= _noPersonDetectedDelay) // Use renamed field
             {
-                _popupVisible = true;
-                _popupStartTime = DateTime.Now;
-                ShowLockPopup?.Invoke(_popupTimeout);
+                ShowLockPopupInternal();
                 Debug.WriteLine($"Inactivity detected ({secondsSinceLastMotion}s). Showing lock popup.");
             }
         }
 
         UpdateIconState();
+    }
+
+    private void ShowLockPopupInternal()
+    {
+        if (!_popupVisible)
+        {
+            _popupVisible = true;
+            _popupStartTime = DateTime.Now;
+            ShowLockPopup?.Invoke(_popupTimeout);
+        }
     }
 
     #endregion
